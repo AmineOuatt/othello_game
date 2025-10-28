@@ -40,7 +40,7 @@ class OthelloBoard:
             print()
         print()
         
-    def get_piece(self, row: int, col: int) -> str:
+    def get_piece(self, row: int, col: int) -> Optional[str]:
         """Get the piece at the specified position."""
         if 0 <= row < self.size and 0 <= col < self.size:
             return self.board[row][col]

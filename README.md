@@ -75,7 +75,8 @@ The board uses 0-based indexing (0-7 for both rows and columns).
 othello_game/
 ├── othello.py          # Main game implementation
 ├── test_othello.py     # Unit tests
-└── README.md          # This file
+├── demo.py             # Automated demo script
+└── README.md           # This file
 ```
 
 ## Running Tests
