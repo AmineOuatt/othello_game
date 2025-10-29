@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import copy
+from tkinter import ttk
 
 #  GAME CONSTANTS ===============================
 
@@ -350,22 +351,34 @@ def start_human_vs_machine(menu):
 def open_main_menu():
     menu = tk.Tk()
     menu.title("Othello Main Menu")
-    menu.geometry("400x300")
+    menu.geometry("400x350")
+    menu.configure(bg="#2c3e50")  # Dark blue background
 
-    tk.Label(menu, text="Othello Game", font=("Arial", 20, "bold")).pack(pady=30)
+    # Center frame
+    frame = tk.Frame(menu, bg="#2c3e50")
+    frame.pack(expand=True)
 
-    tk.Button(menu, text="Human vs Human", width=20, height=2,
-          command=lambda: start_human_vs_human(menu)).pack(pady=10)
+    # Title
+    tk.Label(frame, text="Othello Game", font=("Arial", 24, "bold"),
+             fg="white", bg="#2c3e50").pack(pady=20)
 
+    # Button style
+    style = ttk.Style()
+    style.configure("TButton",
+                    font=("Arial", 14),
+                    padding=10)
+    style.map("TButton",
+              foreground=[('active', '#2c3e50')],
+              background=[('active', '#ecf0f1')])
 
-    tk.Button(menu, text="Human vs Machine", width=20, height=2,
-              command=lambda: start_human_vs_machine(menu)).pack(pady=10)
-
-    tk.Button(menu, text="Quit", width=20, height=2, command=menu.destroy).pack(pady=30)
+    # Buttons
+    ttk.Button(frame, text="Human vs Human",
+               command=lambda: start_human_vs_human(menu)).pack(pady=10, fill='x', padx=50)
+    ttk.Button(frame, text="Human vs Machine",
+               command=lambda: start_human_vs_machine(menu)).pack(pady=10, fill='x', padx=50)
+    ttk.Button(frame, text="Quit", command=menu.destroy).pack(pady=30, fill='x', padx=50)
 
     menu.mainloop()
-
-
 
 #  START PROGRAM ===============================
 
