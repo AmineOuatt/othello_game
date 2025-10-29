@@ -194,6 +194,24 @@ def get_ai_move(board, depth):
 
     return best_move
 
+# afficher les valeurs de 2eme niveau 
+"""def print_minimax_values(board):
+    moves = get_valid_moves(WHITE , board)
+    min_value(board, 2)
+    for move in moves:
+        new_board = simulate_move(board, move, WHITE)
+        score = min_value(new_board, 2)
+        print(f"AI Move: {move}, Minimax Value: {score}")
+    print("best score at lvl 2 is", get_ai_move(board, 2))
+    print("=======")
+"""
+
+
+# afficher les valeurs de 2eme niveau
+def print_second_level_minimax_values(board, depth):
+    
+    print("best value at lvl 2 is", get_ai_move(board, depth))
+
 def highlight_ai_move(canvas, row, col):
    
     """Draw a colored border around the AI's chosen move"""
@@ -204,6 +222,7 @@ def highlight_ai_move(canvas, row, col):
     
     # Draw a thick red border around the cell
     canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=4, tags="ai_highlight")
+    print(f"AI played at ({row}, {col})")
 
 
 # human vs machine minimax function ===============================
@@ -281,6 +300,8 @@ def human_vs_machine_minimax():
 
             draw_board(canvas, current_player, board)
             highlight_ai_move(canvas, ai_move[0], ai_move[1])
+            print_second_level_minimax_values(board,depth)
+            print("+++++++++++++++")
             game_window.update()
 
             #  Case 3: Check if game is over
@@ -336,7 +357,6 @@ def human_vs_human():
 
     canvas.bind("<Button-1>", click_event)
     draw_board(canvas, current_player, board)
-
 
 def start_human_vs_human(menu):
     menu.destroy()
