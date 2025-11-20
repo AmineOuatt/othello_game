@@ -133,6 +133,40 @@ def draw_pieces(canvas, board):
                 draw_piece(canvas, row, col, "white")
 
 
+def create_status_panel(parent):
+    panel = tk.Frame(parent, bg="#1b2838", padx=20, pady=20)
+    tk.Label(panel, text="Game Status", font=("Arial", 18, "bold"),
+             fg="white", bg="#1b2838").pack(pady=(0, 20))
+
+    black_var = tk.StringVar(value="Black: 2")
+    white_var = tk.StringVar(value="White: 2")
+    turn_var = tk.StringVar(value="Turn: Black")
+
+    tk.Label(panel, textvariable=black_var, font=("Arial", 14),
+             fg="white", bg="#1b2838").pack(anchor="w", pady=5)
+    tk.Label(panel, textvariable=white_var, font=("Arial", 14),
+             fg="white", bg="#1b2838").pack(anchor="w", pady=5)
+
+    tk.Label(panel, text="Current Player", font=("Arial", 12, "bold"),
+             fg="#ecf0f1", bg="#1b2838").pack(pady=(20, 5), anchor="w")
+    tk.Label(panel, textvariable=turn_var, font=("Arial", 14),
+             fg="#f1c40f", bg="#1b2838").pack(anchor="w")
+
+    return {
+        "frame": panel,
+        "black_var": black_var,
+        "white_var": white_var,
+        "turn_var": turn_var,
+    }
+
+
+def update_status_panel(status_panel, board, current_player):
+    black_count, white_count = count_pieces(board)
+    status_panel["black_var"].set(f"Black: {black_count}")
+    status_panel["white_var"].set(f"White: {white_count}")
+    status_panel["turn_var"].set(f"Turn: {'Black' if current_player == BLACK else 'White'}")
+
+
 
 # minimax AI functions ===============================
 
@@ -213,8 +247,8 @@ def print_second_level_minimax_values(board, depth):
     print("best value at lvl 2 is", get_ai_move(board, depth))
 
 def highlight_ai_move(canvas, row, col):
-   
     """Draw a colored border around the AI's chosen move"""
+    canvas.delete("ai_highlight")
     x1 = col * CELL_SIZE
     y1 = row * CELL_SIZE
     x2 = x1 + CELL_SIZE
@@ -232,6 +266,8 @@ def human_vs_machine_minimax():
     
     game_window = tk.Tk()
     game_window.title("Othello - Human vs Machine")
+    game_frame = tk.Frame(game_window, padx=10, pady=10)
+    game_frame.pack()
     board = []
     for _ in range(ROWS):
         data_row = []
@@ -242,11 +278,14 @@ def human_vs_machine_minimax():
     board[4][3], board[4][4] = BLACK, WHITE
     current_player = BLACK
 
-    canvas = tk.Canvas(game_window, width=COLS * CELL_SIZE, height=ROWS * CELL_SIZE)
-    canvas.pack()
+    canvas = tk.Canvas(game_frame, width=COLS * CELL_SIZE, height=ROWS * CELL_SIZE)
+    canvas.grid(row=0, column=0)
+
+    status_panel = create_status_panel(game_frame)
+    status_panel["frame"].grid(row=0, column=1, sticky="ns", padx=(15, 0))
 
     def click_event(event):
-        nonlocal current_player
+        nonlocal current_player, last_ai_move
 
         col = event.x // CELL_SIZE
         row = event.y // CELL_SIZE
@@ -275,6 +314,7 @@ def human_vs_machine_minimax():
                     return
 
             draw_board(canvas, current_player, board)
+            update_status_panel(status_panel, board, current_player)
             game_window.update()
 
         # --- AI TURN (White) ---
@@ -287,6 +327,8 @@ def human_vs_machine_minimax():
                 if get_valid_moves(BLACK, board):
                     messagebox.showinfo("Skip", "AI has no valid moves! Your turn.")
                     current_player = BLACK
+                    last_ai_move = None
+                    update_status_panel(status_panel, board, current_player)
                 else:
                     check_game_over(board, game_window)
                     return
@@ -295,11 +337,15 @@ def human_vs_machine_minimax():
                 ai_move = get_ai_move(board, depth)
                 if ai_move:
                     make_move(ai_move[0], ai_move[1], WHITE, board)
-                    
+                    last_ai_move = ai_move
                     current_player = BLACK
+                else:
+                    last_ai_move = None
 
             draw_board(canvas, current_player, board)
-            highlight_ai_move(canvas, ai_move[0], ai_move[1])
+            if last_ai_move:
+                highlight_ai_move(canvas, last_ai_move[0], last_ai_move[1])
+            update_status_panel(status_panel, board, current_player)
             print_second_level_minimax_values(board,depth)
             print("+++++++++++++++")
             game_window.update()
@@ -309,8 +355,10 @@ def human_vs_machine_minimax():
                 check_game_over(board, game_window)
 
 
+    last_ai_move = None
     canvas.bind("<Button-1>", click_event)
     draw_board(canvas, current_player, board)
+    update_status_panel(status_panel, board, current_player)
 
 
 #  HUMAN VS HUMAN GAME ================================
@@ -319,6 +367,8 @@ def human_vs_human():
     # Create a new window for the game
     game_window = tk.Tk()
     game_window.title("Othello - Human vs Human")
+    game_frame = tk.Frame(game_window, padx=10, pady=10)
+    game_frame.pack()
     
     # Initialize board
     board =[]
@@ -332,8 +382,11 @@ def human_vs_human():
     board[4][3], board[4][4] = BLACK, WHITE
     current_player = BLACK
 
-    canvas = tk.Canvas(game_window, width=COLS * CELL_SIZE, height=ROWS * CELL_SIZE)
-    canvas.pack()
+    canvas = tk.Canvas(game_frame, width=COLS * CELL_SIZE, height=ROWS * CELL_SIZE)
+    canvas.grid(row=0, column=0)
+
+    status_panel = create_status_panel(game_frame)
+    status_panel["frame"].grid(row=0, column=1, sticky="ns", padx=(15, 0))
 
     def click_event(event):
         nonlocal current_player
@@ -354,9 +407,11 @@ def human_vs_human():
                         check_game_over(board, game_window)
 
         draw_board(canvas, current_player, board)
+        update_status_panel(status_panel, board, current_player)
 
     canvas.bind("<Button-1>", click_event)
     draw_board(canvas, current_player, board)
+    update_status_panel(status_panel, board, current_player)
 
 def start_human_vs_human(menu):
     menu.destroy()
